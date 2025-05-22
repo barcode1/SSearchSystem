@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Search</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <!-- Custom CSS for additional styling -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            min-height: 100vh;
+        }
+        .search-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+        .btn-search {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transition: transform 0.2s ease;
+        }
+        .btn-search:hover {
+            transform: scale(1.05);
+        }
+        .history-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        .history-card:hover {
+            transform: translateX(10px);
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <div class="container mx-auto p-6">
+        <!-- Header -->
+        <h1 class="text-4xl font-extrabold text-center mb-8 text-gray-800 animate__animated animate__zoomIn">
+            🌟 Smart Search
+        </h1>
+
+        <!-- Search Form -->
+        <div class="search-container p-6 mb-8 animate__animated animate__fadeInDown">
+            <form method="POST" class="flex justify-center items-center space-x-4">
+                <input
+                    type="text"
+                    name="query"
+                    placeholder="🔍 Enter your search query..."
+                    value="{{ query }}"
+                    class="border-2 border-gray-300 p-3 rounded-lg w-2/3 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all duration-300"
+                >
+                <button
+                    type="submit"
+                    class="btn-search text-white p-3 rounded-lg font-semibold shadow-lg animate__animated animate__pulse animate__infinite"
+                >
+                    Search
+                </button>
+            </form>
+        </div>
+
+        <!-- Display Query Not Found Message -->
+        {% if query_not_found_message %}
+        <div class="mb-8 text-center animate__animated animate__fadeIn">
+            <p class="text-lg text-red-600 font-semibold bg-red-100 p-4 rounded-lg shadow-md">
+                {{ query_not_found_message }}
+            </p>
+        </div>
+        {% else %}
+
+        <!-- Display No Match Message -->
+        {% if no_match_message %}
+        <div class="mb-8 text-center animate__animated animate__fadeIn">
+            <p class="text-lg text-red-600 font-semibold bg-red-100 p-4 rounded-lg shadow-md">
+                {{ no_match_message }}
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Display Expanded Query -->
+        {% if expanded_query %}
+        <div class="mb-8 text-center animate__animated animate__fadeIn">
+            <p class="text-lg text-gray-700">
+                Expanded Query:
+                <span class="font-semibold text-indigo-600">{{ expanded_query|join(", ") }}</span>
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Search Results -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {% for result in results %}
+            <div class="card bg-white p-6 rounded-xl shadow-lg animate__animated animate__fadeInUp">
+                <p class="text-gray-800 mb-4">{{ result.original_text }}</p>
+                <p class="text-sm text-gray-600 mb-2">
+                    URL:
+                    <a href="{{ result.url }}" class="text-indigo-500 hover:underline" target="_blank">
+                        {{ result.url }}
+                    </a>
+                </p>
+                <p class="text-sm text-gray-600 mb-2">
+                    Similarity:
+                    <span class="font-semibold text-green-600">{{ result.similarity|round(2) }}</span>
+                </p>
+                <p class="text-sm text-gray-600">
+                    Selected:
+                    <span class="font-semibold {% if result.is_selected %}text-blue-600{% else %}text-red-600{% endif %}">
+                        {{ result.is_selected }}
+                    </span>
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Search History -->
+        <div class="mt-12">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800 animate__animated animate__fadeInLeft">
+                📜 Search History
+            </h2>
+            <div class="grid grid-cols-1 gap-4">
+                {% for entry in history %}
+                <div class="history-card p-4 rounded-lg shadow-md animate__animated animate__fadeInRight">
+                    <p class="text-gray-700">
+                        Query:
+                        <span class="font-semibold">{{ entry[0] }}</span>
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        Time: {{ entry[2] }}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
